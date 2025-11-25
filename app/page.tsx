@@ -30,14 +30,14 @@ export default function Home() {
     const parts = cleanInput.split(".");
     
     if (parts.length >= 2) {
-      // Extract subdomain (first part) and full domain (keep subdomain in domain)
+      // Extract subdomain (first part) and domain (rest)
       const subdomain = parts[0];
-      const fullDomain = cleanInput; // Keep the full domain including subdomain
+      const domain = parts.slice(1).join(".");
       
       // Validate that we have both subdomain and domain
-      if (subdomain && fullDomain) {
-        // Build query params - pass the full domain (with subdomain)
-        const params = new URLSearchParams({ domain: fullDomain });
+      if (subdomain && domain) {
+        // Build query params
+        const params = new URLSearchParams({ domain });
         if (port) {
           params.set("port", port);
         }

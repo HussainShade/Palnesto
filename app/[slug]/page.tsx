@@ -17,22 +17,8 @@ export default function SlugPage() {
       // Clean domain - remove any protocol or trailing slashes
       let cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/+$/, "");
       
-      // Check if domain contains an IP address pattern (e.g., sub.192.168.31.235 or 192.168.31.235)
-      const ipPattern = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/;
-      const ipMatch = cleanDomain.match(ipPattern);
-      
-      let finalDomain = cleanDomain;
-      let isIPAddress = false;
-      
-      // If domain contains an IP address, extract just the IP part
-      // IP addresses can't have subdomain prefixes, so we use the IP directly
-      if (ipMatch) {
-        finalDomain = ipMatch[1]; // Extract just the IP address
-        isIPAddress = true;
-      } else {
-        // Check if the entire domain is an IP address
-        isIPAddress = /^\d{1,3}(\.\d{1,3}){3}$/.test(cleanDomain);
-      }
+      // Check if domain is an IP address (contains only numbers and dots)
+      const isIPAddress = /^\d{1,3}(\.\d{1,3}){3}$/.test(cleanDomain);
       
       // Use provided port, or default to 3000 for IP addresses only
       // Regular domains (like vercel.app) will have no port
@@ -45,7 +31,7 @@ export default function SlugPage() {
           if (prev <= 1) {
             clearInterval(timer);
             // Redirect to domain.com/subdomain format with port
-            window.location.href = `https://${finalDomain}${portSuffix}/${slug}`;
+            window.location.href = `https://${cleanDomain}${portSuffix}/${slug}`;
             return 0;
           }
           return prev - 1;
@@ -56,12 +42,8 @@ export default function SlugPage() {
     }
   }, [domain, slug, port]);
 
-  // Calculate display values
   const cleanDomain = domain ? domain.replace(/^https?:\/\//, "").replace(/\/+$/, "") : null;
-  const ipPattern = cleanDomain ? /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/ : null;
-  const ipMatch = cleanDomain && ipPattern ? cleanDomain.match(ipPattern) : null;
-  const displayDomain = ipMatch ? ipMatch[1] : cleanDomain;
-  const isIPAddress = displayDomain ? /^\d{1,3}(\.\d{1,3}){3}$/.test(displayDomain) : false;
+  const isIPAddress = cleanDomain ? /^\d{1,3}(\.\d{1,3}){3}$/.test(cleanDomain) : false;
   const finalPort = port || (isIPAddress ? "3000" : "");
   const portSuffix = finalPort ? `:${finalPort}` : "";
 
@@ -72,10 +54,10 @@ export default function SlugPage() {
           <h1 className="text-3xl font-semibold text-black dark:text-zinc-50 mb-4">
             You've entered to this {slug}
           </h1>
-          {displayDomain && slug ? (
+          {cleanDomain && slug ? (
             <div className="space-y-4">
               <p className="text-lg text-zinc-600 dark:text-zinc-400">
-                Redirecting to <span className="font-medium text-zinc-900 dark:text-zinc-100">https://{displayDomain}{portSuffix}/{slug}</span>
+                Redirecting to <span className="font-medium text-zinc-900 dark:text-zinc-100">https://{cleanDomain}{portSuffix}/{slug}</span>
               </p>
               <p className="text-sm text-zinc-500 dark:text-zinc-500">
                 Redirecting in {countdown} second{countdown !== 1 ? "s" : ""}...
